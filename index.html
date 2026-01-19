@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>함수의 극한 존재 조건 - 10단계 퀴즈</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.3);
+            border-radius: 25px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #00c853, #69f0ae);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1b5e20;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .step-indicator {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.8;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 18px 25px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+            transform: translateX(10px);
+        }
+
+        .option-btn.correct {
+            border-color: #00c853;
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .option-btn.wrong {
+            border-color: #ff5252;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border: 2px solid #00c853;
+            color: #1b5e20;
+        }
+
+        .feedback.wrong {
+            background: #ffebee;
+            border: 2px solid #ff5252;
+            color: #c62828;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-card h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .score {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .score-message {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e65100;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .question {
+                font-size: 1rem;
+            }
+            .option-btn {
+                font-size: 1rem;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>함수의 극한 존재 조건</h1>
+            <p>10단계 변형문제 퀴즈</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 10%;">1/10</div>
+        </div>
+
+        <div class="quiz-card" id="quizCard">
+            <div class="step-indicator" id="stepIndicator">STEP 1</div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">다음 문제</button>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <h2>퀴즈 완료!</h2>
+            <div class="score" id="finalScore"></div>
+            <div class="score-message" id="scoreMessage"></div>
+            <button class="restart-btn" onclick="restartQuiz()">다시 풀기</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                step: 1,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)$$와 $$\\lim_{x \\to a} g(x)$$의 값이 모두 존재하지 않으면 $$\\lim_{x \\to a}\\{f(x)+g(x)\\}$$의 값도 존재하지 않는다.",
+                options: ["참", "거짓"],
+                correct: 1,
+                explanation: "거짓입니다. 반례: f(x) = 1/(x-a), g(x) = -1/(x-a)일 때, 각각의 극한은 존재하지 않지만 f(x)+g(x) = 0이므로 합의 극한은 0으로 존재합니다."
+            },
+            {
+                step: 2,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)$$와 $$\\lim_{x \\to a} f(x)g(x)$$의 값이 각각 존재하고 $$\\lim_{x \\to a} f(x) \\neq 0$$이면 $$\\lim_{x \\to a} g(x)$$의 값이 존재한다.",
+                options: ["참", "거짓"],
+                correct: 0,
+                explanation: "참입니다. lim f(x) = L ≠ 0이고 lim f(x)g(x) = M이면, g(x) = f(x)g(x)/f(x)이므로 lim g(x) = M/L로 존재합니다."
+            },
+            {
+                step: 3,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>모든 양수 x에 대하여 $$f(x) > g(x)$$이고, $$\\lim_{x \\to a} f(x)$$와 $$\\lim_{x \\to a} g(x)$$가 존재할 때, $$\\lim_{x \\to a} f(x) > \\lim_{x \\to a} g(x)$$이다.",
+                options: ["참", "거짓"],
+                correct: 1,
+                explanation: "거짓입니다. 반례: f(x) = 1/x, g(x) = 0 (x > 0)일 때, f(x) > g(x)이지만 x→∞에서 lim f(x) = lim g(x) = 0입니다. 부등호가 등호로 바뀔 수 있습니다."
+            },
+            {
+                step: 4,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)$$가 존재하면 $$\\lim_{x \\to a} |f(x)|$$도 존재한다.",
+                options: ["참", "거짓"],
+                correct: 0,
+                explanation: "참입니다. lim f(x) = L이면, ||f(x)| - |L|| ≤ |f(x) - L|이므로 lim |f(x)| = |L|입니다."
+            },
+            {
+                step: 5,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} |f(x)|$$가 존재하면 $$\\lim_{x \\to a} f(x)$$도 존재한다.",
+                options: ["참", "거짓"],
+                correct: 1,
+                explanation: "거짓입니다. 반례: f(x) = 1 (x > a), f(x) = -1 (x < a)일 때, |f(x)| = 1이므로 lim |f(x)| = 1이지만, lim f(x)는 좌극한과 우극한이 달라 존재하지 않습니다."
+            },
+            {
+                step: 6,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)^2$$가 존재하면 $$\\lim_{x \\to a} f(x)$$도 존재한다.",
+                options: ["참", "거짓"],
+                correct: 1,
+                explanation: "거짓입니다. 반례: f(x) = 1 (x > a), f(x) = -1 (x < a)일 때, f(x)² = 1이므로 lim f(x)² = 1이지만, lim f(x)는 존재하지 않습니다."
+            },
+            {
+                step: 7,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x) = 0$$이고 $$g(x)$$가 유계(bounded)이면 $$\\lim_{x \\to a} f(x)g(x) = 0$$이다.",
+                options: ["참", "거짓"],
+                correct: 0,
+                explanation: "참입니다. |g(x)| ≤ M (상수)이면, |f(x)g(x)| ≤ M|f(x)|이고 lim f(x) = 0이므로 조임 정리에 의해 lim f(x)g(x) = 0입니다."
+            },
+            {
+                step: 8,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)g(x)$$가 존재하고 $$\\lim_{x \\to a} g(x)$$가 존재하면 $$\\lim_{x \\to a} f(x)$$도 존재한다.",
+                options: ["참", "거짓"],
+                correct: 1,
+                explanation: "거짓입니다. 반례: g(x) = 0 (상수함수)이고 f(x) = 1 (x > a), f(x) = -1 (x < a)일 때, f(x)g(x) = 0이므로 lim f(x)g(x) = 0, lim g(x) = 0이지만 lim f(x)는 존재하지 않습니다."
+            },
+            {
+                step: 9,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a^+} f(x) = \\lim_{x \\to a^-} f(x)$$이면 $$\\lim_{x \\to a} f(x)$$가 존재한다.",
+                options: ["참", "거짓"],
+                correct: 0,
+                explanation: "참입니다. 좌극한과 우극한이 같으면 그 공통값이 x→a에서의 극한값이 됩니다. 이것이 극한 존재의 정의입니다."
+            },
+            {
+                step: 10,
+                question: "다음 명제의 참/거짓을 판별하시오.<br><br>$$\\lim_{x \\to a} f(x)$$가 존재하지 않고 $$\\lim_{x \\to a} g(x)$$가 존재하면 $$\\lim_{x \\to a}\\{f(x)+g(x)\\}$$는 존재하지 않는다.",
+                options: ["참", "거짓"],
+                correct: 0,
+                explanation: "참입니다. 귀류법으로, 만약 lim{f(x)+g(x)} = M이 존재한다면, lim f(x) = lim{(f(x)+g(x)) - g(x)} = M - lim g(x)가 되어 lim f(x)가 존재하게 되므로 모순입니다."
+            }
+        ];
+
+        let currentStep = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            const data = quizData[currentStep];
+            document.getElementById('stepIndicator').textContent = `STEP ${data.step}`;
+            document.getElementById('question').innerHTML = data.question;
+
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+
+            data.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectOption(index);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('nextBtn').style.display = 'none';
+            answered = false;
+
+            MathJax.typesetPromise();
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            answered = true;
+
+            const data = quizData[currentStep];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (index === data.correct) {
+                score++;
+                buttons[index].classList.add('correct');
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '<strong>정답입니다!</strong><div class="explanation">' + data.explanation + '</div>';
+            } else {
+                buttons[index].classList.add('wrong');
+                buttons[data.correct].classList.add('correct');
+                feedback.className = 'feedback wrong';
+                feedback.innerHTML = '<strong>오답입니다.</strong><div class="explanation">' + data.explanation + '</div>';
+            }
+
+            feedback.style.display = 'block';
+
+            if (currentStep < quizData.length - 1) {
+                document.getElementById('nextBtn').textContent = '다음 문제';
+            } else {
+                document.getElementById('nextBtn').textContent = '결과 보기';
+            }
+            document.getElementById('nextBtn').style.display = 'inline-block';
+
+            MathJax.typesetPromise();
+        }
+
+        function nextQuestion() {
+            currentStep++;
+
+            if (currentStep >= quizData.length) {
+                showResult();
+                return;
+            }
+
+            const progress = ((currentStep + 1) / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressBar').textContent = `${currentStep + 1}/${quizData.length}`;
+
+            loadQuestion();
+        }
+
+        function showResult() {
+            document.getElementById('quizCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score} / ${quizData.length}`;
+
+            let message = '';
+            const percentage = (score / quizData.length) * 100;
+
+            if (percentage === 100) {
+                message = '완벽합니다! 함수의 극한을 완전히 이해하고 있습니다!';
+            } else if (percentage >= 80) {
+                message = '훌륭합니다! 극한의 개념을 잘 이해하고 있습니다.';
+            } else if (percentage >= 60) {
+                message = '좋습니다! 조금만 더 복습하면 완벽해질 거예요.';
+            } else if (percentage >= 40) {
+                message = '기본 개념을 다시 복습해보세요.';
+            } else {
+                message = '극한의 기본 정의부터 차근차근 공부해보세요.';
+            }
+
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentStep = 0;
+            score = 0;
+            document.getElementById('quizCard').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('progressBar').style.width = '10%';
+            document.getElementById('progressBar').textContent = '1/10';
+            loadQuestion();
+        }
+
+        // 초기 로드
+        loadQuestion();
+    </script>
+</body>
+</html>
